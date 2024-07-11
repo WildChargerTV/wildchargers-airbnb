@@ -1,16 +1,7 @@
 # `AirBnB API`
 
 ## Database Schema Design
-
-### Candidate 1
-Consolidates Images into one Table. Images can have an either/or assignment 
-to a Spot or a Review.
-![Database Schema Candidate 1](resources/candidate1.png)
-
-### Candidate 2
-Separate Tables for SpotImage and ReviewImage are created and have their respective
-assignments.
-![Database Schema Candidate 2](resources/candidate2.png)
+![Database Schema](resources/schema.png)
 
 ## API Documentation
 
