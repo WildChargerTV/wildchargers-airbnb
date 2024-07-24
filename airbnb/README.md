@@ -1,7 +1,7 @@
 # `AirBnB API`
 
 ## Database Schema Design
-![Database Schema](resources/schema.png)
+![Database Schema](images/schema.png)
 
 ## API Documentation
 
