@@ -37,11 +37,21 @@ const validateSignup = [
 ];
 
 // Sign up
-router.post('/', validateSignup, async (req, res) => {
+router.post('/', validateSignup, async (req, res, next) => {
     const { email, password, username, firstName, lastName } = req.body;
     const hashedPassword = bcrypt.hashSync(password);
 
-    const user = await User.create({ email, username, hashedPassword, firstName, lastName }); 
+    let user;
+    try {
+      user = await User.create({ email, username, hashedPassword, firstName, lastName });
+    } catch(err) { // Handle unique constraint violations here
+      const nextErr = new Error('User already exists');
+
+      const errors = {};
+      err.errors.forEach(error => errors[error.path] = `User with that ${error.path} already exists`);
+      nextErr.errors = errors;
+      return next(nextErr);
+    } 
     
     const safeUser = {
       id: user.id,
