@@ -45,6 +45,7 @@ router.post('/', validateSignup, async (req, res, next) => {
     try {
       user = await User.create({ email, username, hashedPassword, firstName, lastName });
     } catch(err) { // Handle unique constraint violations here
+      // TODO concerning return body: is it possible that both unique constraints can appear at once? Testing says no so far
       const nextErr = new Error('User already exists');
 
       const errors = {};

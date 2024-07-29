@@ -66,7 +66,10 @@ app.use((err, _req, _res, next) => {
 app.use((err, _req, res, _next) => {
     res.status(err.status || 500);
     console.error(err);
-    res.json({
+
+    // If no error list, then assume none exists and only return message
+    if(!err.errors) res.json({message: err.message});
+    else res.json({
       //title: isProduction ? null : err.title || 'Server Error',
       message: err.message,
       errors: err.errors,
