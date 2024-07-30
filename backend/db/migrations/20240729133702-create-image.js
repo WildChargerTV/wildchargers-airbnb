@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       imageableType: {
-        type: Sequelize.ENUM
+        type: Sequelize.STRING
       },
       imageableId: {
         type: Sequelize.INTEGER
