@@ -11,19 +11,87 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Spot.hasMany(models.Booking, { 
+        foreignKey: 'spotId', 
+        onDelete: 'CASCADE', 
+        hooks: true 
+      });
+
+      Spot.hasMany(models.Image, { 
+        foreignKey: 'imageableId',
+        constraints: false,
+        scope: {
+          imageableType: 'Spot'
+        },
+        as: 'SpotImages'
+      });
+      
+      Spot.hasMany(models.Review, {
+        foreignKey: 'spotId', 
+        onDelete: 'CASCADE', 
+        hooks: true
+      });
+
+      Spot.belongsTo(models.User, { 
+        foreignKey: 'ownerId',
+        as: 'Owner'
+      });
     }
   }
   Spot.init({
-    ownerId: DataTypes.INTEGER,
-    address: DataTypes.STRING,
-    city: DataTypes.STRING,
-    state: DataTypes.STRING,
-    country: DataTypes.STRING,
-    lat: DataTypes.FLOAT,
-    lng: DataTypes.FLOAT,
-    name: DataTypes.STRING,
-    description: DataTypes.STRING,
-    price: DataTypes.INTEGER
+    ownerId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    address: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
+    city: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    state: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    country: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    lat: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      validate: {
+        isFloat: true
+      }
+    },
+    lng: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+      validate: {
+        isFloat: true
+      }
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: [1, 50]
+      }
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        min: 1
+      }
+    }
   }, {
     sequelize,
     modelName: 'Spot',
