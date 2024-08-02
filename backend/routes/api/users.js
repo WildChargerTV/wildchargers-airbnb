@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
-const { setTokenCookie, requireAuth } = require('../../utils/auth');
+const { setTokenCookie } = require('../../utils/auth');
 const { User } = require('../../db/models');
 
 const router = express.Router();
@@ -22,7 +22,8 @@ const validateSignup = [
     check('username')
       .not()
       .isEmail()
-      .withMessage('Username cannot be an email'),
+      //.withMessage('Username cannot be an email'),
+      .withMessage('Username is required'),
     check('password')
       .exists({ checkFalsy: true })
       .isLength({ min: 6 })
@@ -45,11 +46,10 @@ router.post('/', validateSignup, async (req, res, next) => {
     try {
       user = await User.create({ email, username, hashedPassword, firstName, lastName });
     } catch(err) { // Handle unique constraint violations here
-      // TODO concerning return body: is it possible that both unique constraints can appear at once? Testing says no so far
       const nextErr = new Error('User already exists');
-
       const errors = {};
-      err.errors.forEach(error => errors[error.path] = `User with that ${error.path} already exists`);
+
+      err.errors.forEach((error) => errors[error.path] = `User with that ${error.path} already exists`);
       nextErr.errors = errors;
       return next(nextErr);
     } 
@@ -61,12 +61,10 @@ router.post('/', validateSignup, async (req, res, next) => {
       firstName: user.firstName,
       lastName: user.lastName
     };
-
     await setTokenCookie(res, safeUser);
 
-    return res.json({
-        user: safeUser
-    });
+    res.status(201);
+    return res.json({ user: safeUser });
 });
 
 module.exports = router;
