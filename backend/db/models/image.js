@@ -1,7 +1,6 @@
 'use strict';
 
 const { Model } = require('sequelize');
-const { Sequelize } = require('.');
 
 module.exports = (sequelize, DataTypes) => {
   class Image extends Model {
