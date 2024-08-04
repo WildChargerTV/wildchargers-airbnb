@@ -62,15 +62,34 @@ const restoreUser = (req, res, next) => {
 };
 
 // If there is no current user, return an error
-const requireAuth = function (req, _res, next) {
-  console.log('\u001b[1;33mUser authentication requested');
-  if (req.user) return next();
+const requireAuthentication = function (req, _res, next) {
+  if(!req.user) {
+    console.log('\u001b[1;33m' + 'User authentication requested, result: ' + '\u001b[1;31m' + 'FAIL' + '\u001b[0m');
+    const err = new Error('Authentication required');
+    err.title = 'Authentication required';
+    err.errors = { message: 'Authentication required' };
+    err.status = 401;
+    return next(err);
+  }
 
-  const err = new Error('Authentication required');
-  err.title = 'Authentication required';
-  err.errors = { message: 'Authentication required' };
-  err.status = 401;
-  return next(err);
+  console.log('\u001b[1;33m' + 'User authentication requested, result: ' + '\u001b[1;32m' + 'SUCCESS' + '\u001b[0m');
+  if (req.user) return next();
 };
 
-module.exports = { setTokenCookie, restoreUser, requireAuth };
+// Check if the user is the owner of an Instance
+// REQUIRES additional params passed into req.body
+const requireAuthorization =  async (req, res, next) => {
+  const { type, instance } = req.body;
+  if(
+    (type === 'Spot' && instance.ownerId !== req.user.id)
+  ) {
+    console.log('\u001b[1;33m' + 'User authorization requested, result: ' + '\u001b[1;31m' + 'FAIL' + '\u001b[0m');
+    res.status(403);
+    return res.json({ message: `Forbidden: ${type} is not owned by the current User` });
+  }
+  
+  console.log('\u001b[1;33m' + 'User authentication requested, result: ' + '\u001b[1;32m' + 'SUCCESS' + '\u001b[0m');
+  return next();
+}
+
+module.exports = { setTokenCookie, restoreUser, requireAuthentication, requireAuthorization };
