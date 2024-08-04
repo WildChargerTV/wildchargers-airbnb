@@ -1,32 +1,31 @@
 // backend/routes/api/bookings.js
 const express = require('express')
 
-const { check } = require('express-validator');
-const { requireAuth } = require('../../utils/auth')
-const { handleValidationErrors } = require('../../utils/validation');
+const { requireAuthentication } = require('../../utils/auth');
+const { findInstance } = require('../../utils/search');
 require('dotenv').config();
 require('express-async-errors');
 
-const { User, Image, Review, Spot } = require('../../db/models');
-const { Op } = require('sequelize');
+const { Image, Review, Spot } = require('../../db/models');
 
 const router = express.Router();
 
 // DELETE an existing Image from a Review or a Spot
-router.delete('/:imageId', requireAuth, async (req, res, next) => {
-    const image = await Image.findByPk(req.params.imageId, { attributes: ['id', 'url', 'imageableType', 'imageableId', 'preview'] });
+router.delete('/:imageId', requireAuthentication, async (req, _res, next) => {
+    req.body.type = 'Image';
+    req.body.Model = Image;
+    req.body.param = req.params.imageId;
+    req.body.options = { attributes: ['id', 'url', 'imageableType', 'imageableId', 'preview'] };
+    return next();
+}, findInstance, async (req, res) => {
+    const image = req.body.instance;
 
     // Takes the url and derives the intended imageableType from it, in the absence of an image to reference
     let imageableType = req.baseUrl.split('/')[2].split('-')[0];
     imageableType = imageableType[0].toUpperCase() + imageableType.slice(1);
-
-    if(!image) {
-        res.status(404);
-        return res.json({ message: `${imageableType} Image couldn't be found` });
-    }
-    console.log(image.toJSON());
     
-    let auth = false
+    // This is an authorization checker, but will not be integrated into requireAuthorization due to its unique usage
+    let auth = false;
     if(image.imageableType === 'Review') {
         const review = await Review.findByPk(image.imageableId);
         console.log(review);

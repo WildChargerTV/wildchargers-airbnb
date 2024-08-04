@@ -1,19 +1,18 @@
 // backend/routes/api/bookings.js
 const express = require('express')
 
-const { check } = require('express-validator');
-const { requireAuth } = require('../../utils/auth')
-const { handleValidationErrors } = require('../../utils/validation');
+const { requireAuthentication, requireAuthorization } = require('../../utils/auth');
+const { findInstance } = require('../../utils/search');
 require('dotenv').config();
 require('express-async-errors');
 
-const { Sequelize, User, Booking, Spot, Image } = require('../../db/models');
+const { Sequelize, Booking, Spot, Image } = require('../../db/models');
 const { Op } = require('sequelize');
 
 const router = express.Router();
 
 // GET all Bookings made by the current User
-router.get('/current', requireAuth, async (req, res) => {
+router.get('/current', requireAuthentication, async (req, res) => {
     const bookings = await Booking.findAll({
         attributes: ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'],
         where: {
@@ -48,34 +47,29 @@ router.get('/current', requireAuth, async (req, res) => {
 });
 
 // PUT an existing Booking
-router.put('/:bookingId', requireAuth, async (req, res) => {
+router.put('/:bookingId', requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Booking';
+    req.body.Model = Booking;
+    req.body.param = req.params.bookingId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, async (req, res) => {
+    const booking = req.body.instance;
     const { startDate, endDate } = req.body;
-
-    const booking = await Booking.findByPk(req.params.bookingId);
-    if(!booking) {
-        res.status(404);
-        return res.json({ message: 'Booking couldn\'t be found' });
-    }
-    if(booking.userId !== req.user.id) {
-        res.status(403);
-        return res.json({ message: 'Forbidden: Booking is not owned by the current User' });
-    }
 
     booking.set({ startDate, endDate });
     await booking.save();
     return res.json(booking);
 });
 
-router.delete('/bookingId', requireAuth, async (req, res) => {
-    const booking = await Booking.findByPk(req.params.bookingId);
-    if(!booking) {
-        res.status(404);
-        return res.json({ message: 'Booking couldn\'t be found' });
-    }
-    if(booking.userId !== req.user.id) {
-        res.status(403);
-        return res.json({ message: 'Forbidden: Booking is not owned by the current User' });
-    }
+router.delete('/bookingId', requireAuthentication, async (req, _res, next) => {
+    req.body.type = 'Booking';
+    req.body.Model = Booking;
+    req.body.param = req.params.bookingId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, async (req, res) => {
+    const booking = req.body.instance;
 
     await booking.destroy();
     return res.json({ message: 'Successfully deleted' });
