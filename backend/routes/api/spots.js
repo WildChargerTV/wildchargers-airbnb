@@ -2,7 +2,7 @@
 const express = require('express')
 
 const { check } = require('express-validator');
-const { requireAuth } = require('../../utils/auth')
+const { requireAuthentication, requireAuthorization } = require('../../utils/auth')
 const { handleValidationErrors } = require('../../utils/validation');
 require('dotenv').config();
 require('express-async-errors');
@@ -73,21 +73,69 @@ const validateReview = [
 ];
 
 // Validate a new Booking
-const validateBooking = [
-    check('startDate')
-        .exists({ checkFalsy: true })
-        .custom((value, { req } ) => {
-            console.log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO" + value.toDate());
-            return typeof value.toDate();
-        })
-        .withMessage('startDate cannot be in the past'),
-    check('endDate')
-        .exists({ checkFalsy: true })
-        .isISO8601().toDate()
-        .isAfter('startDate')
-        .withMessage('endDate cannot be on or before startDate'),
-    handleValidationErrors
-];
+const validateBooking = async (req, _res, next) => {
+    let { startDate, endDate } = req.body;
+    const errors = {};
+
+    // Translate the start & end dates to Date objects. Discard hour differentials from Date.now().
+    // This allows for proper comparison if booking dates are the same.
+    startDate = new Date(startDate).setHours(0, 0, 0, 0);
+    endDate = new Date(endDate).setHours(0, 0, 0, 0);
+    let nowDate = new Date(Date.now()).setHours(0, 0, 0, 0);
+
+    // BEGIN Body Validation Errors
+    // 1. startDate cannot be in the past
+    if(startDate < nowDate) errors['startDate'] = 'startDate cannot be in the past';
+    //2. endDate cannot be on or before startDate
+    if(endDate <= startDate) errors['endDate'] = 'endDate cannot be on or before startDate';
+    if(errors.startDate || errors.endDate) {
+        const nextErr = new Error('Bad Request');
+        nextErr.errors = errors;
+        nextErr.status = 400;
+        return next(nextErr);
+    }
+    // END Body Validation Errors
+
+    // BEGIN Booking conflict
+    // TODO port this to be handled by Sequelize unique constraints maybe
+    await Booking.findAll({ where: { spotId: { [Op.eq]: req.body.param } } })
+    .then(async (result) => {
+        for await (const booking of result) {
+            const json = booking.toJSON();
+            let bookingStart = new Date(json.startDate).setHours(0, 0, 0, 0);
+            let bookingEnd = new Date(json.endDate).setHours(0, 0, 0, 0);
+
+            // 1. startDates cannot conflict
+            if(startDate === bookingStart) errors['startDate'] = 'Start date conflicts with an existing booking';
+            // 2. endDates cannot conflict
+            if(endDate === bookingEnd) errors['endDate'] = 'End date conflicts with an existing booking';
+        }
+        return result;
+    });
+    if(errors.startDate || errors.endDate) {
+        const nextErr = new Error('Sorry, this Spot is already booked for the specified dates');
+        nextErr.errors = errors;
+        nextErr.status = 403;
+        return next(nextErr);
+    }
+    // END Booking conflict
+
+    return next();
+}
+
+// Verify the existence of a Spot, if the URL has a spotId
+const findInstance = async (req, res, next) => {
+    const { type, Model, param, options } = req.body;
+    const target = await Model.findByPk(param, options);
+
+    if(!target.toJSON()?.id) { // TODO oddity: some custom columns can cause an object with all null values to be returned rather than no object. Can this be avoided?
+        res.status(404);
+        return res.json({ message: `${type} couldn't be found` });
+    } else {
+        req.body.instance = target;
+        return next();
+    }
+}
 
 // GET all Spots
 router.get('/', async (_req, res) => {
@@ -112,12 +160,11 @@ router.get('/', async (_req, res) => {
             }
         ]
     });
-
     return res.json({ Spots: spots });
 });
 
 // GET all Spots owned by the current User
-router.get('/current', requireAuth, async (req, res) => {
+router.get('/current', requireAuthentication, async (req, res) => {
     const spots = await Spot.findAll({
         attributes: [
             'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
@@ -138,58 +185,54 @@ router.get('/current', requireAuth, async (req, res) => {
             }
         ],
         where: { ownerId: { [Op.eq]: req.user.id } }
-    })
-
+    });
     return res.json({ Spots: spots });
 });
 
 // GET one Spot
-router.get('/:spotId', async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId, {
+router.get('/:spotId', (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {
+        attributes: [
+            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
+            [Sequelize.fn('COUNT', Sequelize.col('reviews.id')), 'numReviews'], // TODO why is this showing up as 2???
+            [Sequelize.fn('AVG', Sequelize.col('reviews.stars')), 'avgStarRating']
+        ],
         include: [
-            {
-                model: Image,
-                as: 'SpotImages'
-            },
-            {
-                model: User,
-                as: 'Owner',
-                attributes: ['id', 'firstName', 'lastName']
-            }
-        ]
-    });
-
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
+            { model: Image, as: 'SpotImages' },
+            { model: Review, attributes: ['id', 'stars'], where: { spotId: req.params.spotId }}, 
+            { model: User, as: 'Owner', attributes: ['id', 'firstName', 'lastName'] }
+        ],
     }
-
-    return res.json(spot);
-});
+    return next();
+}, findInstance, (req, res) => res.json(req.body.instance));
 
 // GET all Bookings by a Spot's id
-router.get('/:spotId/bookings', requireAuth, async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId);
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
+router.get('/:spotId/bookings', requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, async (req, res) => {
+    const spot = req.body.instance;
 
+    // Determine what attributes to include in the booking output based on authorization
     let attributes = [], include = [];
     if(spot.ownerId === req.user.id){
         attributes = ['id', 'spotId', 'userId', 'startDate', 'endDate', 'createdAt', 'updatedAt'];
         include = [{ model: User, attributes: ['id', 'firstName', 'lastName'] }];
-    } else
-        attributes = ['spotId', 'startDate', 'endDate'];
+    } else attributes = ['spotId', 'startDate', 'endDate'];
 
-    const bookings = await Booking.findAll({
-        attributes, include,
-        where: { spotId: { [Op.eq]: spot.id } }
+    // Get the bookings
+    const bookings = await Booking.findAll({ attributes, include, where: { spotId: { [Op.eq]: spot.id } }
     }).then(async (result) => {
-        if(spot.ownerId !== req.user.id)
-            return result;
-        const arr = [];
+        if(spot.ownerId !== req.user.id) return result;
 
+        // Filter each booking to necessary values only
+        const arr = [];
         for await (const booking of result) {
             const json = booking.toJSON();
             const newBooking = { User: json.User, id: json.id, spotId: json.spotId, userId: json.userId, startDate: json.startDate, endDate: json.endDate, createdAt: json.createdAt, updatedAt: json.updatedAt};
@@ -197,39 +240,31 @@ router.get('/:spotId/bookings', requireAuth, async (req, res) => {
         }
         return arr;
     });
-    
     return res.json({ Bookings: bookings });
 });
 
 // GET all Reviews by a Spot's id
-router.get('/:spotId/reviews', async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId);
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
-
+router.get('/:spotId/reviews', (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, async (req, res) => {
+    const spot = req.body.instance;
     const reviews = await Review.findAll({
         attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'],
         include: [
-            {
-                model: User,
-                attributes: ['id', 'firstName', 'lastName']
-            },
-            {
-                model: Image,
-                as: 'ReviewImages',
-                attributes: ['id', 'url']
-            }
+            { model: User, attributes: ['id', 'firstName', 'lastName'] },
+            { model: Image, as: 'ReviewImages', attributes: ['id', 'url'] }
         ],
         where: { spotId: { [Op.eq]: spot.id } }
     });
-
     return res.json({ Reviews: reviews });
 });
 
 // POST a new Spot
-router.post('/', validateSpot, requireAuth, async (req, res, next) => {
+router.post('/', requireAuthentication, validateSpot, async (req, res, next) => {
     const { address, city, state, country, lat, lng, name, description, price } = req.body;
     
     let spot;
@@ -240,9 +275,10 @@ router.post('/', validateSpot, requireAuth, async (req, res, next) => {
         });
     } catch(err) { // Handle unique constraint violations here
         const nextErr = new Error('Spot already exists');
-        const errors = {};
 
+        const errors = {};
         err.errors.forEach((error) => errors[error.path] = `Spot with that ${error.path} already exists`);
+
         nextErr.errors = errors;
         return next(nextErr);
     }
@@ -252,19 +288,17 @@ router.post('/', validateSpot, requireAuth, async (req, res, next) => {
 });
 
 // POST a new Booking to a Spot
-router.post('/:spotId/bookings', requireAuth, async (req, res, next) => {
+router.post('/:spotId/bookings', requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, validateBooking, async (req, res, next) => {
+    const spot = req.body.instance;
     const { startDate, endDate } = req.body;
-    const spot = await Spot.findByPk(req.params.spotId);
 
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
-    if(spot.ownerId !== req.user.id){
-        res.status(403);
-        return res.json({ message: 'Forbidden: Spot is not owned by the current User' });
-    }
-
+    // validateBooking ensures dates are not in conflict
     let booking;
     try {
         booking = await Booking.create({
@@ -272,37 +306,22 @@ router.post('/:spotId/bookings', requireAuth, async (req, res, next) => {
             userId: req.user.id,
             startDate, endDate
         });
-    } catch(err) { // Handle unique constraint violations here
-        const nextErr = new Error('Sorry, this spot is already booked for the specified dates');
-        const errors = {};
-
-        err.errors.forEach((error) => {
-            if(error.path === 'startDate')
-                errors[error.path] = 'Start date conflicts with an existing booking';
-            else if(error.path === 'endDate')
-                errors[error.path] = 'End date conflicts with an existing booking';
-        });
-        nextErr.errors = errors;
-        return next(nextErr);
-    }
+    } catch(err) { return next(err); }
 
     res.status(201);
     return res.json(booking);
 });
 
 // POST a new Image to a Spot
-router.post('/:spotId/images', validateImage, requireAuth, async (req, res, next) => {
+router.post('/:spotId/images', requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, validateImage, async (req, res, next) => {
+    const spot = req.body.instance;
     const { url, preview } = req.body;
-    const spot = await Spot.findByPk(req.params.spotId);
-
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
-    if(spot.ownerId !== req.user.id){
-        res.status(403);
-        return res.json({ message: 'Forbidden: Spot is not owned by the current User' });
-    }
 
     const imgCount = await Image.count({
         where: {
@@ -310,7 +329,7 @@ router.post('/:spotId/images', validateImage, requireAuth, async (req, res, next
             imageableId: { [Op.eq]: spot.id }
         }
     });
-    console.log(imgCount);
+
     if(imgCount >= 10) {
         res.status(403);
         return res.json({ message: 'Forbidden: Maximum image limit of 10 reached for this Spot '});
@@ -318,16 +337,13 @@ router.post('/:spotId/images', validateImage, requireAuth, async (req, res, next
 
     let image;
     try {
-        // TODO why is the default scope not applying here
         image = await Image.create({
             url,
             imageableType: 'Spot',
             imageableId: spot.id,
             preview
         });
-    } catch(err) { // No unique constraints, this is purely a precaution
-        return next(err);
-    }
+    } catch(err) { return next(err); }
 
     res.status(201);
     return res.json({
@@ -338,20 +354,23 @@ router.post('/:spotId/images', validateImage, requireAuth, async (req, res, next
 });
 
 // POST a new Review to a Spot
-router.post('/:spotId/reviews', validateReview, requireAuth, async (req, res, next) => {
+router.post('/:spotId/reviews', validateReview, requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, validateReview, async (req, res) => {
+    const spot = req.body.instance;
     const { review, stars } = req.body;
-    const spot = await Spot.findByPk(req.params.spotId);
+
+    // Final validation: Ensure the User doesn't already have a Review for the Spot
     const foundReview = await Review.findAll({
         where: {
             userId: { [Op.eq]: req.user.id },
             spotId: { [Op.eq]: req.params.spotId }
         }
     });
-
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
     if(foundReview.length) {
         res.status(500);
         return res.json({ message: 'User already has a Review for this Spot' });
@@ -361,33 +380,27 @@ router.post('/:spotId/reviews', validateReview, requireAuth, async (req, res, ne
         userId: req.user.id,
         spotId: spot.id,
         review, stars
-    }).then(async (result) => {
-        // For some odd reason, createdAt and updatedAt get swapped when making a new Review. This just fixes that.
-        const json = result.toJSON();
-        const val = { id: json.id, userId: json.userId, spotId: json.spotId, review: json.review, stars: json.stars, updatedAt: json.updatedAt, createdAt: json.createdAt };
-        console.log(val);
-        return val;
     });
 
-    // TODO createdAt and updatedAt are swapped for some reason
+    // For some odd reason, createdAt and updatedAt get swapped when making a new Review. This just fixes that.
     res.status(201);
-    return res.json(newReview);
+    return res.json({ 
+        id: newReview.id, userId: newReview.userId, spotId: newReview.spotId, 
+        review: newReview.review, stars: newReview.stars,
+        createdAt: newReview.createdAt, updatedAt: newReview.updatedAt
+    });
 });
 
 // PUT an existing Spot
-router.put('/:spotId', validateSpot, requireAuth, async (req, res) => {
+router.put('/:spotId', validateSpot, requireAuthentication, (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, validateSpot, async (req, res) => {
+    const spot = req.body.instance;
     const { address, city, state, country, lat, lng, name, description, price } = req.body;
-    const spot = await Spot.findByPk(req.params.spotId);
-
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
-
-    if(spot.ownerId !== req.user.id){
-        res.status(403);
-        return res.json({ message: 'Forbidden: Spot is not owned by the current User' });
-    }
 
     spot.set({ address, city, state, country, lat, lng, name, description, price });
     await spot.save();
@@ -395,21 +408,16 @@ router.put('/:spotId', validateSpot, requireAuth, async (req, res) => {
 });
 
 // DELETE an existing Spot
-router.delete('/:spotId', requireAuth, async (req, res) => {
-    const spot = await Spot.findByPk(req.params.spotId);
-
-    if(!spot) {
-        res.status(404);
-        return res.json({ message: 'Spot couldn\'t be found' });
-    }
-    if(spot.ownerId !== req.user.id){
-        res.status(403);
-        return res.json({ message: 'Forbidden: Spot is not owned by the current User' });
-    }
-
+router.delete('/:spotId', requireAuthentication, async (req, _res, next) => {
+    req.body.type = 'Spot';
+    req.body.Model = Spot;
+    req.body.param = req.params.spotId;
+    req.body.options = {};
+    return next();
+}, findInstance, requireAuthorization, async (req, res) => {
+    const spot = req.body.instance;
     await spot.destroy();
     return res.json({ message: 'Successfully deleted' });
 });
-
 
 module.exports = router;
