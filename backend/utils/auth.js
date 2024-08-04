@@ -81,7 +81,8 @@ const requireAuthentication = function (req, _res, next) {
 const requireAuthorization =  async (req, res, next) => {
   const { type, instance } = req.body;
   if(
-    (type === 'Spot' && instance.ownerId !== req.user.id)
+    (type === 'Spot' && instance.ownerId !== req.user.id) ||
+    (type === 'Review' && instance.userId !== req.user.id)
   ) {
     console.log('\u001b[1;33m' + 'User authorization requested, result: ' + '\u001b[1;31m' + 'FAIL' + '\u001b[0m');
     res.status(403);
