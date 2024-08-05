@@ -62,7 +62,7 @@ router.put('/:bookingId', requireAuthentication, (req, _res, next) => {
     return res.json(booking);
 });
 
-router.delete('/bookingId', requireAuthentication, async (req, _res, next) => {
+router.delete('/:bookingId', requireAuthentication, async (req, _res, next) => {
     req.body.type = 'Booking';
     req.body.Model = Booking;
     req.body.param = req.params.bookingId;
