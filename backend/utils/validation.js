@@ -57,6 +57,40 @@ const validateSpot = [
     handleValidationErrors
 ];
 
+const validateSpotParams = [
+    check('page')
+        .isInt({ min: 1 })
+        .withMessage('Page must be greater than or equal to 1'),
+    check('size')
+        .isInt({ min: 1, max: 20 })
+        .withMessage('Size must be between 1 and 20'),
+    check('maxLat')
+        .optional({ checkFalsy: true })
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Maximum latitude is invalid'),
+    check('minLat')
+        .optional({ checkFalsy: true })
+        .isFloat({ min: -90, max: 90 })
+        .withMessage('Minimum latitude is invalid'),
+    check('maxLng')
+        .optional({ checkFalsy: true })
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Maximum longitude is invalid'),
+    check('minLng')
+        .optional({ checkFalsy: true })
+        .isFloat({ min: -180, max: 180 })
+        .withMessage('Minimum longitude is invalid'),
+    check('maxPrice')
+        .optional({ checkFalsy: true })
+        .isInt({ min: 0 })
+        .withMessage('Maximum price must be greater than or equal to 0'),
+    check('minPrice')
+        .optional({ checkFalsy: true })
+        .isInt({ min: 0 })
+        .withMessage('Minimum price must be greater than or equal to 0'),
+    handleValidationErrors
+]
+
 // Validate a new Image
 const validateImage = [
     check('url')
@@ -135,6 +169,7 @@ const validateBooking = async (req, _res, next) => {
 module.exports = {
     handleValidationErrors,
     validateSpot,
+    validateSpotParams,
     validateImage,
     validateReview,
     validateBooking

@@ -3,7 +3,7 @@ const express = require('express')
 
 const { requireAuthentication, requireAuthorization } = require('../../utils/auth');
 const { findInstance } = require('../../utils/search');
-const { validateSpot, validateImage, validateReview, validateBooking } = require('../../utils/validation');
+const { validateSpot, validateSpotParams, validateImage, validateReview, validateBooking } = require('../../utils/validation');
 require('dotenv').config();
 require('express-async-errors');
 
@@ -13,20 +13,17 @@ const { Op } = require('sequelize');
 const router = express.Router();
 
 // GET all Spots
-router.get('/', async (_req, res) => {
-    const spots = await Spot.findAll({
+router.get('/', validateSpotParams, async (req, res) => {
+    const query = {
+        subQuery: false, // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
+        
         attributes: [
             'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating'],
+            [Sequelize.fn('AVG', Sequelize.col('reviews.stars')), 'avgRating'],
             [Sequelize.col('url'), 'previewImage']
         ],
-        separate: true,
         include: [
-            {
-                model: Review,
-                attributes: [],
-                group: Spot.id
-            },
+            { model: Review, attributes: [] }, 
             {
                 model: Image,
                 as: 'SpotImages',
@@ -34,8 +31,51 @@ router.get('/', async (_req, res) => {
                 where: { preview: { [Op.eq]: true } }
             }
         ]
+    };
+
+    // Query checkers
+    const page = req.query.page === undefined ? 1 : parseInt(req.query.page);
+    const size = req.query.size === undefined ? 20 : parseInt(req.query.size);
+    if(page >= 1 && size >= 1) {
+        query.limit = size;
+        query.offset = size * (page - 1);
+    }
+    query.where = {
+        lat: {
+            [Op.lte]: (req.query.maxLat === undefined) ? 90 : req.query.maxLat,
+            [Op.gte]: (req.query.minLat === undefined) ? -90 : req.query.minLat
+        },
+        lng: {
+            [Op.lte]: (req.query.maxLng === undefined) ?  180 : req.query.maxLng,
+            [Op.gte]: (req.query.minLng === undefined) ? -180 : req.query.minLng
+        },
+        price: {
+            [Op.gte]: (req.query.minPrice === undefined) ? 0 : req.query.minPrice
+        }
+    }
+    if(req.query.maxPrice) {
+        query.where.price = {
+            [Op.gte]: (req.query.minPrice === undefined) ? 0 : req.query.minPrice,
+            [Op.lte]: req.query.maxPrice
+        }
+    }
+
+    // Find the spots
+    const spots = await Spot.findAll(query)
+    .then(async (result) => { // TODO why do existent null entries spawn from these queries?
+        const arr = [];
+
+        for await (const spot of result) {
+            const json = spot.toJSON();
+            if(json.id !== null) arr.push(spot);
+        }
+        return arr;
     });
-    return res.json({ Spots: spots });
+    return res.json({
+        Spots: spots,
+        page: page,
+        size: size
+    });
 });
 
 // GET all Spots owned by the current User
@@ -77,7 +117,7 @@ router.get('/:spotId', (req, _res, next) => {
         ],
         include: [
             { model: Image, as: 'SpotImages' },
-            { model: Review, attributes: ['id', 'stars'], where: { spotId: req.params.spotId }}, 
+            { model: Review, attributes: [], where: { spotId: req.params.spotId }}, 
             { model: User, as: 'Owner', attributes: ['id', 'firstName', 'lastName'] }
         ],
     }
