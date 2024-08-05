@@ -23,13 +23,8 @@ router.get('/', validateSpotParams, async (req, res) => {
             [Sequelize.col('url'), 'previewImage']
         ],
         include: [
-            { model: Review, attributes: [], group: Spot.id }, 
-            {
-                model: Image,
-                as: 'SpotImages',
-                attributes: [],
-                where: { preview: { [Op.eq]: true } }
-            }
+            { model: Review, attributes: [], group: Spot.id, required: true, duplicating: false }, 
+            { model: Image, as: 'SpotImages', attributes: [], where: { preview: { [Op.eq]: true } } }
         ]
     };
 
@@ -298,7 +293,7 @@ router.post('/:spotId/reviews', requireAuthentication, (req, _res, next) => {
 });
 
 // PUT an existing Spot
-router.put('/:spotId', validateSpot, requireAuthentication, (req, _res, next) => {
+router.put('/:spotId', requireAuthentication, (req, _res, next) => {
     req.body.type = 'Spot';
     req.body.Model = Spot;
     req.body.param = req.params.spotId;
