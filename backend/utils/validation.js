@@ -100,6 +100,7 @@ const validateImage = [
         .isURL()
         .withMessage('URL does not exist or is invalid'),
     check('preview')
+        .optional({ checkFalsy: true })
         .isBoolean()
         .withMessage('Value passed into preview was not a boolean'),
     handleValidationErrors
