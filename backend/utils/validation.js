@@ -59,9 +59,11 @@ const validateSpot = [
 
 const validateSpotParams = [
     check('page')
+        .optional({ checkFalsy: true })
         .isInt({ min: 1 })
         .withMessage('Page must be greater than or equal to 1'),
     check('size')
+        .optional({ checkFalsy: true })
         .isInt({ min: 1, max: 20 })
         .withMessage('Size must be between 1 and 20'),
     check('maxLat')
