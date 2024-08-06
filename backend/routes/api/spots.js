@@ -15,17 +15,16 @@ const router = express.Router();
 // GET all Spots
 router.get('/', validateSpotParams, async (req, res) => {
     const query = {
-        subQuery: false, // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
-        
         attributes: [
             'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
             [Sequelize.fn('AVG', Sequelize.col('reviews.stars')), 'avgRating'],
             [Sequelize.col('url'), 'previewImage']
         ],
         include: [
-            { model: Review, attributes: [], group: Spot.id, required: true, duplicating: false }, 
+            { model: Review, attributes: [], group: Spot.id }, 
             { model: Image, as: 'SpotImages', attributes: [], where: { preview: { [Op.eq]: true } } }
-        ]
+        ],
+        
     };
 
     // Query checkers
@@ -34,6 +33,7 @@ router.get('/', validateSpotParams, async (req, res) => {
     if(page >= 1 && size >= 1) {
         query.limit = size;
         query.offset = size * (page - 1);
+        query.subQuery = false; // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
     }
     query.where = {
         lat: {
