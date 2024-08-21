@@ -17,12 +17,12 @@ router.get('/', validateSpotParams, async (req, res) => {
     const query = {
         attributes: [
             'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            [Sequelize.fn('AVG', Sequelize.col('reviews.stars')), 'avgRating'],
-            [Sequelize.col('url'), 'previewImage']
+            //[Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
+            //[Sequelize.col('url'), 'previewImage']
         ],
         include: [
-            { model: Review, attributes: [], group: Spot.id }, 
-            { model: Image, as: 'SpotImages', attributes: [], where: { preview: { [Op.eq]: true } } }
+            { model: Review }, 
+            { model: Image, as: 'SpotImages', where: { preview: { [Op.eq]: true } } }
         ],
         
     };
@@ -33,7 +33,7 @@ router.get('/', validateSpotParams, async (req, res) => {
     if(page >= 1 && size >= 1) {
         query.limit = size;
         query.offset = size * (page - 1);
-        query.subQuery = false; // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
+        //query.subQuery = false; // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
     }
     query.where = {
         lat: {
@@ -62,7 +62,16 @@ router.get('/', validateSpotParams, async (req, res) => {
 
         for await (const spot of result) {
             const json = spot.toJSON();
-            if(json.id !== null) arr.push(spot);
+
+            // avgRating column replacement
+            json.avgRating = json.Reviews.reduce((acc, review) => acc + review.stars, 0) / json.Reviews.length;
+
+            // previewImage column replacement
+            json.previewImage = json.SpotImages[0].url;
+
+            delete json.Reviews;
+            delete json.SpotImages;
+            if(json.id !== null) arr.push(json);
         }
         return arr;
     });
