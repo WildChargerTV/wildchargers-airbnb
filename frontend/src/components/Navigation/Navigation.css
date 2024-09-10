@@ -1,0 +1,8 @@
+.hidden {
+    display: none;
+    visibility: hidden;
+}
+
+.profile-dropdown {
+    position: relative;
+}

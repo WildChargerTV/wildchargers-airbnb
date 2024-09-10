@@ -1,0 +1,53 @@
+/* TODO: Add sitewide styles */
+
+h1 {
+    font-size: 24pt;
+    font-weight: bold;
+}
+h2 {
+    font-size: 18pt;
+    font-weight: bold;
+}
+p, li, div, span {
+    font-size: 14pt;
+}
+button {
+    background-color: white;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    color: black;
+    font-size: 14pt;
+    text-align: center;
+}
+button:hover {
+    background-color: #999999;
+    border: 1px solid black;
+    color: white;
+    cursor: pointer;
+}
+button:active {
+    background-color: #FF5A5F;
+    border: 1px solid black;
+    color: white;
+}
+
+.site-logo {
+    display: inline-block;
+    width: 102px;
+    height: 32px;
+}
+
+#root {
+    display: block;
+    width: 100%; /* TODO why??? */
+}
+#site-header {
+    border-bottom: 2px solid #CCCCCC;
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+    justify-content: space-between;
+    min-width: 0;
+    padding: 25px 20px 0px 20px;
+    width: inherit;
+}
