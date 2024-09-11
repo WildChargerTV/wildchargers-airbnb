@@ -37,17 +37,14 @@ button:active {
     height: 32px;
 }
 
-#root {
-    display: block;
-    width: 100%; /* TODO why??? */
-}
 #site-header {
     border-bottom: 2px solid #CCCCCC;
     display: flex;
     flex-direction: row;
     height: 70px;
     justify-content: space-between;
+    margin-bottom: 15px;
+    margin-right: 0;
     min-width: 0;
     padding: 25px 20px 0px 20px;
-    width: inherit;
 }

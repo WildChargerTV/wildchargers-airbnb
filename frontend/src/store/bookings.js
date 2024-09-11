@@ -47,7 +47,7 @@ export const editBooking = (payload, bookingId) => async (dispatch) => {
     }
 }
 
-const deleteBooking = (bookingId) => async (dispatch) => {
+export const deleteBooking = (bookingId) => async (dispatch) => {
     const response = await fetch(`/api/bookings/${bookingId}`, { method: 'DELETE' });
     if(response.ok) dispatch(remove(bookingId));
 }

@@ -92,7 +92,7 @@ const spotReducer = (state = initialState, action) => {
         case DELETE:
         case DELETE_IMAGE:
             console.log(action);
-            break;
+            return {...state, ...action.list};
         default:
             return state;
     }
