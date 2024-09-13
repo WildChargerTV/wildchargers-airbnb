@@ -85,16 +85,28 @@ router.get('/', validateSpotParams, async (req, res) => {
 // GET all Spots owned by the current User
 router.get('/current', requireAuthentication, async (req, res) => {
     const spots = await Spot.findAll({
-        attributes: [
-            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating'],
-            [Sequelize.col('url'), 'previewImage']
-        ],
+        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'],
         include: [
-            { model: Review, attributes: [], group: Spot.id },
-            { model: Image, as: 'SpotImages', attributes: [], where: { preview: { [Op.eq]: true } } }
+            { model: Review, group: Spot.id },
+            { model: Image, as: 'SpotImages', where: { preview: { [Op.eq]: true } } }
         ],
         where: { ownerId: { [Op.eq]: req.user.id } }
+    }).then(async (result) => {
+        const arr = [];
+
+        for await (const spot of result) {
+            const json = spot.toJSON();
+
+            // avgRating column replacement
+            json.avgRating = json.Reviews.reduce((acc, review) => acc + review.stars, 0) / json.Reviews.length;
+            // previewImage column replacement
+            json.previewImage = json.SpotImages[0].url;
+
+            delete json.Reviews;
+            delete json.SpotImages;
+            if(json.id !== null) arr.push(json);
+        }
+        return arr;
     });
     return res.json({ Spots: spots });
 });
@@ -105,19 +117,26 @@ router.get('/:spotId', (req, _res, next) => {
     req.body.Model = Spot;
     req.body.param = req.params.spotId;
     req.body.options = {
-        attributes: [
-            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            [Sequelize.fn('COUNT', Sequelize.col('reviews.id')), 'numReviews'], // TODO why is this showing up as 2???
-            [Sequelize.fn('AVG', Sequelize.col('reviews.stars')), 'avgStarRating']
-        ],
+        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'],
         include: [
             { model: Image, as: 'SpotImages' },
-            { model: Review, attributes: [], where: { spotId: req.params.spotId }}, 
-            { model: User, as: 'Owner', attributes: ['id', 'firstName', 'lastName'] }
+            { model: Review, where: { spotId: req.params.spotId }}, 
+            { model: User, as: 'Owner' }
         ],
     }
     return next();
-}, findInstance, (req, res) => res.json(req.body.instance));
+}, findInstance, (req, res) => {
+    const json = req.body.instance.toJSON();
+
+    // numReviews column replacement
+    json.numReviews = json.Reviews.length;
+    // avgStarRating column replacement
+    json.avgStarRating = json.Reviews.reduce((acc, review) => acc + review.stars, 0) / json.Reviews.length;
+
+    delete json.Reviews;
+    delete json.Owner.username;
+    return res.json(json);
+});
 
 // GET all Bookings by a Spot's id
 router.get('/:spotId/bookings', requireAuthentication, (req, _res, next) => {
