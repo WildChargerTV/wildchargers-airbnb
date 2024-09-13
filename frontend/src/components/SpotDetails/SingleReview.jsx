@@ -5,7 +5,7 @@ const MONTHS = ['January', 'February', 'March',
 
 function SingleReview({ review }) {
     const createdDate = new Date(review.createdAt);
-    console.log(new Date(review.createdAt));
+
     return (<div className='review-tile'>
         <h3 className='review-tile__user-name'>User firstName placeholder</h3>
         <h4 className='review-tile__date'>{MONTHS[createdDate.getMonth() - 1]} {createdDate.getFullYear()}</h4>

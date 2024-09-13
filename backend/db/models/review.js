@@ -21,11 +21,13 @@ module.exports = (sequelize, DataTypes) => {
       });
 
       Review.belongsTo(models.Spot, { 
-        foreignKey: 'spotId' 
+        foreignKey: 'spotId',
+        targetKey: 'id'
       });
 
       Review.belongsTo(models.User, { 
-        foreignKey: 'userId' 
+        foreignKey: 'userId',
+        targetKey: 'id'
       });
     }
   }

@@ -13,12 +13,14 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       Spot.hasMany(models.Booking, { 
         foreignKey: 'spotId', 
+        sourceKey: 'id',
         onDelete: 'CASCADE', 
         hooks: true 
       });
 
       Spot.hasMany(models.Image, { 
         foreignKey: 'imageableId',
+        sourceKey: 'id',
         constraints: false,
         scope: {
           imageableType: 'Spot'
@@ -28,12 +30,14 @@ module.exports = (sequelize, DataTypes) => {
       
       Spot.hasMany(models.Review, {
         foreignKey: 'spotId', 
+        sourceKey: 'id',
         onDelete: 'CASCADE', 
         hooks: true
       });
 
       Spot.belongsTo(models.User, { 
         foreignKey: 'ownerId',
+        targetKey: 'id',
         as: 'Owner'
       });
     }

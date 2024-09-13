@@ -1,3 +1,5 @@
+import { csrfFetch } from "./csrf";
+
 const LOAD = 'review/LOAD';
 const ADD = 'review/ADD';
 const ADD_IMAGE = 'review/ADD_IMG';
@@ -13,15 +15,14 @@ const remove = (reviewId) => ({ type: DELETE, reviewId });
 const removeImage = (imageId) => ({ type: DELETE_IMAGE, imageId });
 
 export const getReviewsBySpot = (spotId) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${spotId}/reviews`);
+    const response = await csrfFetch(`/api/spots/${spotId}/reviews`);
     if(response.ok) {
         const reviews = await response.json();
-        console.warn(reviews);
         dispatch(load(reviews));
     }
 }
 export const getCurrentReviews = () => async (dispatch) => {
-    const response = await fetch('/api/reviews/current');
+    const response = await csrfFetch('/api/reviews/current');
     if(response.ok) {
         const reviews = await response.json();
         dispatch(load(reviews));
@@ -29,7 +30,7 @@ export const getCurrentReviews = () => async (dispatch) => {
 }
 
 export const createReview = (payload, spotId) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${spotId}/reviews`, {
+    const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -40,7 +41,7 @@ export const createReview = (payload, spotId) => async (dispatch) => {
     }
 }
 export const addImageToReview = (payload, reviewId) => async (dispatch) => {
-    const response = await fetch(`/api/reviews/${reviewId}/images`, {
+    const response = await csrfFetch(`/api/reviews/${reviewId}/images`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -52,7 +53,7 @@ export const addImageToReview = (payload, reviewId) => async (dispatch) => {
 }
 
 export const editReview = (payload, reviewId) => async (dispatch) => {
-    const response = await fetch(`/api/reviews/${reviewId}`, {
+    const response = await csrfFetch(`/api/reviews/${reviewId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -64,11 +65,11 @@ export const editReview = (payload, reviewId) => async (dispatch) => {
 }
 
 export const deleteReview = (reviewId) => async (dispatch) => {
-    const response = await fetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
+    const response = await csrfFetch(`/api/reviews/${reviewId}`, { method: 'DELETE' });
     if(response.ok) dispatch(remove(reviewId));
 }
 export const deleteReviewImage = (imageId) => async (dispatch) => {
-    const response = await fetch(`/api/review-images/${imageId}`, { method: 'DELETE' });
+    const response = await csrfFetch(`/api/review-images/${imageId}`, { method: 'DELETE' });
     if(response.ok) dispatch(removeImage(imageId));
 }
 
@@ -77,7 +78,6 @@ const initialState = {};
 const reviewReducer = (state = initialState, action) => {
     switch(action.type) {
         case LOAD:
-            console.log('checkpoint:' + JSON.stringify(action.list.Reviews));
             return {...state, ...action.list};
         case ADD:
         case ADD_IMAGE:

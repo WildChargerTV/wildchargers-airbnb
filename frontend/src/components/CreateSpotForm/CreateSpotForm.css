@@ -1,0 +1,77 @@
+#site-create-spot {
+    margin: auto;
+    max-width: 500px;
+}
+label > input {
+    font-size: 14pt;
+    margin-bottom: 10px;
+    max-width: 492px;
+}
+label > small { font-size: 9pt; }
+label > span { font-weight: bold; }
+
+section > h2 { margin-bottom: 0; }
+section > p { margin-top: 0; }
+section > input { 
+    font-size: 14pt; 
+    margin-bottom: 10px;
+    max-width: 492px;
+}
+
+#spot-location, #spot-desc, #spot-title, #spot-base-price, #spot-images { 
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+}
+
+.spot-info__error {
+    color: lightcoral;
+    font-size: 10pt;
+    margin: 0;
+    text-align: left;
+}
+#spot-info__submit {
+    margin: 35px 0 100px 192px;
+}
+
+/* --------------------[Section 1: Spot Location]-------------------- */
+#spot-location {
+    display: grid;
+    grid-template-areas: 
+        "a a a a"
+        "b b b b"
+        "c c c c"
+        "d d d d"
+        "e e e f"
+        "g g h h";
+}
+#spot-location > h2 { grid-area: a; }
+#spot-location > p { grid-area: b; }
+#spot-country { grid-area: c; }
+#spot-country > input { width: 492px; }
+#spot-address { grid-area: d; }
+#spot-address > input { width: 492px; }
+#spot-city { grid-area: e; }
+#spot-city > input { width: 337px; }
+#spot-state { grid-area: f; padding-left: 23px; }
+#spot-state > input { width: 117px; }
+#spot-lat { grid-area: g; }
+#spot-lat > input { width: 222px; }
+#spot-lng { grid-area: h; padding-left: 23px; }
+#spot-lng > input { width: 232px; }
+
+/* --------------------[Section 2: Spot Description]-------------------- */
+#spot-description { /* This is the <textarea> */
+    font-family: sans-serif;
+    height: 200px;
+    margin-bottom: 10px;
+    width: 492.5px;
+}
+
+/* --------------------[Section 3: Spot Title]-------------------- */
+#spot-name { width: 492px; }
+
+/* --------------------[Section 4: Spot Price]-------------------- */
+#spot-price > input { width: 472.4px; }
+
+/* --------------------[Section 5: Spot Images]-------------------- */
+#spot-images > input { width: 492px; }

@@ -1,3 +1,5 @@
+import { csrfFetch } from "./csrf";
+
 const LOAD = 'spot/LOAD_ALL';
 const LOAD_ONE = 'spot/LOAD_ONE';
 const ADD = 'spot/ADD';
@@ -15,21 +17,21 @@ const remove = (spotId) => ({ type: DELETE, spotId });
 const removeImage = (imageId) => ({ type: DELETE_IMAGE, imageId });
 
 export const getSpots = () => async (dispatch) => {
-    const response = await fetch('/api/spots');
+    const response = await csrfFetch('/api/spots');
     if(response.ok) {
         const spots = await response.json();
         dispatch(loadAll(spots));
     }
 }
 export const getSpotById = (id) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${id}`);
+    const response = await csrfFetch(`/api/spots/${id}`);
     if(response.ok) {
         const spot = await response.json();
         dispatch(loadOne(spot));
     }
 }
 export const getCurrentSpots = () => async (dispatch) => {
-    const response = await fetch('/api/spots/current');
+    const response = await csrfFetch('/api/spots/current');
     if(response.ok) {
         const spots = await response.json();
         dispatch(loadAll(spots));
@@ -37,7 +39,7 @@ export const getCurrentSpots = () => async (dispatch) => {
 }
 
 export const createSpot = (payload) => async (dispatch) => {
-    const response = await fetch('/api/spots', {
+    const response = await csrfFetch('/api/spots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -48,7 +50,7 @@ export const createSpot = (payload) => async (dispatch) => {
     } // TODO create error handling
 }
 export const addImageToSpot = (payload, spotId) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${spotId}/images`, {
+    const response = await csrfFetch(`/api/spots/${spotId}/images`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -60,7 +62,7 @@ export const addImageToSpot = (payload, spotId) => async (dispatch) => {
 }
 
 export const editSpot = (payload, spotId) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${spotId}`, {
+    const response = await csrfFetch(`/api/spots/${spotId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -72,11 +74,11 @@ export const editSpot = (payload, spotId) => async (dispatch) => {
 }
 
 export const deleteSpot = (spotId) => async (dispatch) => {
-    const response = await fetch(`/api/spots/${spotId}`, { method: 'DELETE' });
+    const response = await csrfFetch(`/api/spots/${spotId}`, { method: 'DELETE' });
     if(response.ok) dispatch(remove(spotId));
 }
 export const deleteSpotImage = (imageId) => async (dispatch) => {
-    const response = await fetch(`api/spot-images/${imageId}`);
+    const response = await csrfFetch(`api/spot-images/${imageId}`);
     if(response.ok) dispatch(removeImage(imageId));
 }
 

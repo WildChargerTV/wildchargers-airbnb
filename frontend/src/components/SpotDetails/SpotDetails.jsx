@@ -20,7 +20,7 @@ function SpotDetails() {
     }, [dispatch, spotId]);
 
     // Handler to prevent rendering error before fetch is complete
-    if(!spot?.SpotImages) return null;
+    if(!spot?.SpotImages || !reviews) return null;
 
     const reviewString = () => {
         if(!spot.numReviews) return null;
