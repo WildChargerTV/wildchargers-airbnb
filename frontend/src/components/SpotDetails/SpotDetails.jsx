@@ -33,24 +33,25 @@ function SpotDetails() {
         </>);
     }
     const userReviewExists = () => {
-        return (sessionUser && reviews?.find((review) => review.userId == sessionUser.id));
+        console.warn((sessionUser && reviews?.find((review) => review.userId == sessionUser.id) && spot.ownerId !== sessionUser.id));
+        return (sessionUser && reviews?.find((review) => review.userId == sessionUser.id) && spot.ownerId !== sessionUser.id);
     }
 
     return (<main id='site-spot-details'>
         <div id='spot-detail'>
-            <h1 id='spot-title'>{spot.name}</h1>
-            <h2 id='spot-location'>{spot.city}, {spot.state}, {spot.country}</h2>
-            <div id='spot-gallery'>{spot?.SpotImages.map((img) => <img key={img.id} src={img.url} />)}</div>
+            <h1 id='spot-detail__title'>{spot.name}</h1>
+            <h2 id='spot-detail__location'>{spot.city}, {spot.state}, {spot.country}</h2>
+            <div id='spot-detail__gallery'>{spot?.SpotImages.map((img) => <img key={img.id} src={img.url} />)}</div>
 
-            <h2 id='spot-host'>Hosted by {spot.Owner.firstName} {spot.Owner.lastName}</h2>
-            <p id='spot-description'>{spot.description}</p>
-            <div id='spot-reserve-panel'>
-                <h3 id='spot-price'>${spot.price}<small>/night</small></h3>
-                <h3 id='spot-rating-reviews'>
+            <h2 id='spot-detail__host'>Hosted by {spot.Owner.firstName} {spot.Owner.lastName}</h2>
+            <p id='spot-detail__description'>{spot.description}</p>
+            <div id='spot-detail__reserve-panel'>
+                <h3 id='spot-detail__price'>${spot.price}<small>/night</small></h3>
+                <h3 id='spot-detail__rating-reviews'>
                     ★{spot.avgStarRating.toFixed(1)}
                     {reviewString()}
                 </h3>
-                <button id='spot-reserve-btn' onClick={handleReserve}>Reserve</button>
+                <button id='spot-detail__reserve-btn' onClick={handleReserve}>Reserve</button>
             </div>
         </div>
         <div id='spot-reviews'>

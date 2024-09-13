@@ -15,30 +15,30 @@
     padding-bottom: 25px;
 }
 
-#spot-title { 
+#spot-detail__title { 
     grid-area: a;
     margin-bottom: 0;
 }
-#spot-location { 
+#spot-detail__location { 
     grid-area: b;
     margin-top: 0;
 }
 
-#spot-gallery {
+#spot-detail__gallery {
     grid-area: c;
     margin-bottom: 20px;
 }
 
-#spot-host {
+#spot-detail__host {
     grid-area: d;
     margin: 0;
 }
-#spot-description {
+#spot-detail__description {
     grid-area: e;
     margin-top: 0;
 }
 
-#spot-reserve-panel {
+#spot-detail__reserve-panel {
     align-items: center;
     border: 1px solid white;
     border-radius: 10px;
@@ -50,13 +50,13 @@
     height: fit-content;
     padding: 10px 15px;
 }
-#spot-price, #spot-rating-reviews { margin-top: 0; }
-#spot-price { grid-area: a; }
-#spot-rating-reviews { 
+#spot-detail__price, #spot-detail__rating-reviews { margin-top: 0; }
+#spot-detail__price { grid-area: a; }
+#spot-detail__rating-reviews { 
     grid-area: b; 
     text-align: right;
 }
-#spot-reserve-btn { 
+#spot-detail__reserve-btn { 
     grid-area: c;
     height: 40px;
 }
