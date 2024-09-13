@@ -1,8 +1,87 @@
-.hidden {
-    display: none;
-    visibility: hidden;
+/* --------------------[Global Header Definitions]-------------------- */
+#site-header {
+    border-bottom: 2px solid #CCCCCC;
+    display: flex;
+    flex-direction: row;
+    height: 70px;
+    margin-bottom: 15px;
+    margin-right: 0;
+    min-width: 0;
+    padding: 25px 20px 0px 20px;
 }
 
-.profile-dropdown {
+
+/* --------------------[Site Logo]-------------------- */
+.site-logo {
+    display: inline-block;
+    height: 32px;
+    margin-right: auto;
+    width: 102px;
+}
+
+.site-header__button {
+    background: none;
+    border: none;
+    color: white;
+    height: fit-content;
+    margin: 8px 10px 0 0;
+}
+.site-header__button:hover {
+    background: none;
+    border: none;
+}
+
+/* --------------------[Profile Buttons, Profile Dropdown Menu]-------------------- */
+#site-profile {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+}
+#site-profile__btn-container {
+    border: 1px solid white;
+    border-radius: 25px;
+    display: grid;
+    grid-template-columns: 25px 25px;
+    grid-template-rows: 25px;
+    height: fit-content;
+    padding: 11px 10px 5px 10px;
+    width: fit-content;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    outline: inherit;
+    padding: 0;
+}
+.profile-btn:hover {
+    background: none;
+    border: none;
+}
+
+.site-profile__dropdown {
+    background-color: #181A1B;
+    border: 1px solid white;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
     position: relative;
+    top: 5px;
+}
+.site-profile__dropdown > li {
+    cursor: default;
+    margin: 3px;
+    padding: 0 30px 0 2px;
+}
+.dropdown-btn {
+    cursor: pointer;
+}
+
+#dropdown-email, #dropdown-manage-spots {
+    border-bottom: 2px solid white;
+    padding-bottom: 5px;
+}
+#dropdown-logout {
+    margin-left: 50px;
 }

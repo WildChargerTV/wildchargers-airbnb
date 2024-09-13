@@ -9,7 +9,7 @@ function OpenModalMenuItem({ modalComponent, itemText, onItemClick, onModalClose
     if (typeof onItemClick === 'function') onItemClick();
   }
 
-  return <li onClick={onClick}>{itemText}</li>
+  return <li className='dropdown-btn' onClick={onClick}>{itemText}</li>
 }
 
 export default OpenModalMenuItem;

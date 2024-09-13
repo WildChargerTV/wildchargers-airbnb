@@ -1,0 +1,66 @@
+#site-spot-details {
+    margin: auto;
+    max-width: 1000px;
+}
+
+#spot-detail {
+    border-bottom: 2px solid white;
+    display: grid;
+    grid-template-areas:
+        "a a a a"
+        "b b b b"
+        "c c c c"
+        "d d d f"
+        "e e e f";
+    padding-bottom: 25px;
+}
+
+#spot-title { 
+    grid-area: a;
+    margin-bottom: 0;
+}
+#spot-location { 
+    grid-area: b;
+    margin-top: 0;
+}
+
+#spot-gallery {
+    grid-area: c;
+    margin-bottom: 20px;
+}
+
+#spot-host {
+    grid-area: d;
+    margin: 0;
+}
+#spot-description {
+    grid-area: e;
+    margin-top: 0;
+}
+
+#spot-reserve-panel {
+    align-items: center;
+    border: 1px solid white;
+    border-radius: 10px;
+    display: grid;
+    grid-template-areas: 
+        "a . b"
+        "c c c";
+    grid-area: f;
+    height: fit-content;
+    padding: 10px 15px;
+}
+#spot-price, #spot-rating-reviews { margin-top: 0; }
+#spot-price { grid-area: a; }
+#spot-rating-reviews { 
+    grid-area: b; 
+    text-align: right;
+}
+#spot-reserve-btn { 
+    grid-area: c;
+    height: 40px;
+}
+
+.review-tile__user-name { margin-bottom: 0; }
+.review-tile__date { margin: 0; }
+.review-tile__review { margin-top: 10px; }

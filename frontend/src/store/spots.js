@@ -85,7 +85,11 @@ const initialState = {}
 const spotReducer = (state = initialState, action) => {
     switch(action.type) {
         case LOAD:
+            return {...state, ...action.list};
+
         case LOAD_ONE:
+            return {...state, ...action.spot};
+        
         case ADD:
         case ADD_IMAGE:
         case EDIT:

@@ -1,0 +1,41 @@
+
+.spot-tile:hover {
+    background-color: #999999;
+    cursor: pointer;
+}
+
+
+.spot-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 12px;
+}
+
+#spot-list {
+    display: grid;
+    padding: 0 1.5%;
+}
+
+/* --------------------[Single Spot Tile Definitions]-------------------- */
+.spot-tile {
+    border-radius: 10px;
+    color: white;
+    display: grid;
+    grid-template-areas:
+        "a a a a"
+        "b b b c";
+    max-width: 20%;
+    padding: 10px;
+}
+
+.spot-tile__preview-image {
+    border-radius: 5px;
+    grid-area: a;
+    width: 100%;
+}
+.spot-tile__location-price { grid-area: b; }
+.spot-tile__rating {
+    grid-area: c;
+    text-align: right;
+    margin-bottom: auto;
+}

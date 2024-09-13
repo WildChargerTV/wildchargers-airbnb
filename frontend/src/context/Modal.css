@@ -1,3 +1,4 @@
+/* --------------------[Global Modal Definitions]-------------------- */
 #modal {
     position: fixed;
     top: 0;
@@ -10,6 +11,7 @@
 }
   
 #modal-background {
+    border: none;
     position: fixed;
     top: 0;
     right: 0;
@@ -19,6 +21,33 @@
 }
   
 #modal-content {
+    background-color: #181A1B;
+    border: 1px solid white;
+    border-radius: 35px;
+    min-width: 200px;
+    padding: 10px 25px 25px 25px;
     position: absolute;
-    background-color: white;
+    text-align: center;
+    width: 15%;
+}
+
+/* --------------------[Global Modal Element Definitions]-------------------- */
+.modal-title { margin: 0; }
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    margin-top: 5px;
+    row-gap: 15px;
+}
+.modal-form__error {
+    color: lightcoral;
+    font-size: 10pt;
+    margin: 0;
+    text-align: left;
+}
+
+.modal-button {
+    margin-top: 25px;
+    width: 100%;
 }

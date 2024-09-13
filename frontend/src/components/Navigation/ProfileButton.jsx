@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { BsPersonFill } from 'react-icons/bs';
+import { MdAccountCircle, MdDehaze } from 'react-icons/md';
 import { useDispatch } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
 import LoginFormModal from '../LoginFormModal';
 import OpenModalMenuItem from './OpenModalMenuItem';
 import SignupFormModal from '../SignupFormModal';
@@ -8,6 +9,7 @@ import * as sessionActions from '../../store/session';
 
 const ProfileButton = ({ user }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const ulRef = useRef();
     const [showMenu, setShowMenu] = useState(false);
     
@@ -16,6 +18,7 @@ const ProfileButton = ({ user }) => {
         e.preventDefault();
         dispatch(sessionActions.logout());
         closeMenu();
+        navigate('/');
     }
     const toggleMenu = (e) => {
         e.stopPropagation();
@@ -31,21 +34,26 @@ const ProfileButton = ({ user }) => {
         return () => document.removeEventListener('click', closeMenu);
     }, [showMenu]);
 
-    const ulClassName = 'profile-dropdown' + (showMenu ? '' : ' hidden');
-    return (<div id='site-profile-btn'>
-        <button onClick={toggleMenu}><BsPersonFill /></button>
-        <ul className={ulClassName} ref={ulRef}>
-            {user ? (<>
-                <li>{user.username}</li>
-                <li>{user.firstName} {user.lastName}</li>
-                <li>{user.email}</li>
-                <li><button onClick={logout}>Log Out</button></li>
-            </>) : (<>
-                <OpenModalMenuItem itemText='Log In' onItemClick={closeMenu} modalComponent={<LoginFormModal />} />
-                <OpenModalMenuItem itemText='Sign Up' onItemClick={closeMenu} modalComponent={<SignupFormModal />} />
-            </>)}
-        </ul>
-    </div>)
+    const ulClassName = 'site-profile__dropdown' + (showMenu ? '' : ' hidden');
+    return (
+        <div id='site-profile'>
+            <div id='site-profile__btn-container'>
+                <button className='profile-btn' onClick={toggleMenu}><MdDehaze /></button>
+                <button className='profile-btn' onClick={toggleMenu}><MdAccountCircle /></button>
+            </div>
+            <ul className={ulClassName} ref={ulRef}>
+                {user ? (<>
+                    <li>Hello, {user.firstName}</li>
+                    <li id='dropdown-email'>{user.email}</li>
+                    <li id='dropdown-manage-spots'><NavLink to='/spots/current'>Manage Spots</NavLink></li>
+                    <li><button id='dropdown-logout' onClick={logout}>Log Out</button></li>
+                </>) : (<>
+                    <OpenModalMenuItem itemText='Log In' onItemClick={closeMenu} modalComponent={<LoginFormModal />} />
+                    <OpenModalMenuItem itemText='Sign Up' onItemClick={closeMenu} modalComponent={<SignupFormModal />} />
+                </>)}
+            </ul>
+        </div>
+    )
 }
 
 export default ProfileButton;

@@ -1,22 +1,55 @@
 /* TODO: Add sitewide styles */
 
-h1 {
-    font-size: 24pt;
-    font-weight: bold;
+/* --------------------[Custom Font Definitions]-------------------- */
+@font-face {
+    font-family: 'kenya-SouthSide';
+    src: local('kenya_South Side'),
+    url('./fonts/kenyaSouthSide.woff') format('woff');
 }
-h2 {
-    font-size: 18pt;
-    font-weight: bold;
+@font-face {
+    font-family: 'kenya-NewRodin ProN EB';
+    src: local('kenya-NewRodin ProN (Extra Bold)'), 
+    url('./fonts/kenyaNewRodinProNEB.woff') format('woff');
 }
-p, li, div, span {
-    font-size: 14pt;
+@font-face {
+    font-family: 'Montserrat EB';
+    src: local('Montserrat Extra Bold'),
+    url('./fonts/MontserratExtraBold.woff2') format('woff2');
 }
+
+
+/* --------------------[Global Element Definitions]-------------------- */
+body { /* Dark Mode set by default */
+    background-color: #181A1B;
+    color: white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'kenya-NewRodin ProN EB', sans-serif;
+    /* Specs clarification: Font is ExtraBold, so font-weight is not required, 
+    and makes no visible difference if added */
+    letter-spacing: 0.4px;
+}
+h1 { font-size: 24pt; }
+h2 { font-size: 18pt; }
+h3 { font-size: 14pt; }
+
+label, li, p, small { font-family: 'kenya-SouthSide', sans-serif; }
+label, li, p { font-size: 14pt; }
+
+a { 
+    color: white;
+    text-decoration: none; 
+}
+
 button {
     background-color: white;
     border: 1px solid #CCCCCC;
     border-radius: 5px;
     color: black;
+    font-family: 'Montserrat EB', sans-serif;
     font-size: 14pt;
+    letter-spacing: 0.3px;
     text-align: center;
 }
 button:hover {
@@ -31,20 +64,8 @@ button:active {
     color: white;
 }
 
-.site-logo {
-    display: inline-block;
-    width: 102px;
-    height: 32px;
-}
-
-#site-header {
-    border-bottom: 2px solid #CCCCCC;
-    display: flex;
-    flex-direction: row;
-    height: 70px;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    margin-right: 0;
-    min-width: 0;
-    padding: 25px 20px 0px 20px;
+/* --------------------[Global Class Definitions]-------------------- */
+.hidden {
+    display: none;
+    visibility: hidden;
 }

@@ -17,6 +17,9 @@ export function ModalProvider({ children }) {
             onModalClose();
         }
     }
+
+    /* sonarlint(javascript:S6481): 
+    The 'contextValue' object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook. */
     const contextValue = { modalRef, modalContent, setModalContent, setOnModalClose, closeModal }
 
     return (<>
@@ -27,12 +30,12 @@ export function ModalProvider({ children }) {
 
 export function Modal() {
     const { modalRef, modalContent, closeModal } = useContext(ModalContext);
-    if (!modalRef || !modalRef.current || !modalContent) return null;
+    if (!modalRef?.current || !modalContent) return null;
   
     // Render the following component to the div referenced by the modalRef
     return ReactDOM.createPortal(
         <div id='modal'>
-            <div id='modal-background' onClick={closeModal} />
+            <button id='modal-background' onClick={closeModal} />
             <div id='modal-content'>{modalContent}</div>
         </div>,
         modalRef.current

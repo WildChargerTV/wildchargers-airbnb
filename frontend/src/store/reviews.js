@@ -16,6 +16,7 @@ export const getReviewsBySpot = (spotId) => async (dispatch) => {
     const response = await fetch(`/api/spots/${spotId}/reviews`);
     if(response.ok) {
         const reviews = await response.json();
+        console.warn(reviews);
         dispatch(load(reviews));
     }
 }
@@ -76,13 +77,14 @@ const initialState = {};
 const reviewReducer = (state = initialState, action) => {
     switch(action.type) {
         case LOAD:
+            console.log('checkpoint:' + JSON.stringify(action.list.Reviews));
+            return {...state, ...action.list};
         case ADD:
         case ADD_IMAGE:
         case EDIT:
         case DELETE:
         case DELETE_IMAGE:
-            console.warn(action);
-            break;
+            return {...state, ...action};
         default:
             return state;
     }
