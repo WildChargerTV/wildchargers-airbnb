@@ -34,6 +34,8 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Images';
+    options.truncate = true;
+    options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
       url: { [Sequelize.Op.in]: ['https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg'] }
     }, {});

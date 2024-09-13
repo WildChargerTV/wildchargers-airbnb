@@ -24,6 +24,8 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Bookings';
+    options.truncate = true;
+    options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
       // userId 2 is FakeUser1, a test user
       userId: { [Sequelize.Op.in]: [2] }

@@ -30,6 +30,8 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Spots';
+    options.truncate = true;
+    options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
       address: { [Sequelize.Op.in]: ['123 Disney Lane'] }
     }, {});

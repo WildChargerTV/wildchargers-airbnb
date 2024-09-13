@@ -38,6 +38,8 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
     options.tableName = 'Users';
+    options.truncate = true;
+    options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
       username: { [Sequelize.Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }
     }, {});
