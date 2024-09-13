@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
+import CreateSpotForm from './components/CreateSpotForm';
 import Navigation from './components/Navigation';
 import SpotDetails from './components/SpotDetails';
 import SpotList from './components/SpotList';
@@ -28,18 +29,18 @@ const router = createBrowserRouter([{
   children: [
     { 
       path: '/', 
-      element: <SpotList /> 
+      element: <SpotList current={false} /> 
     },
     {
       path: '/spots',
       children: [
         {
           path: 'current',
-
+          element: <SpotList current={true} />
         },
         {
           path: 'new',
-
+          element: <CreateSpotForm />
         },
         {
           path: ':spotId',

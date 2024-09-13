@@ -64,3 +64,7 @@
 .review-tile__user-name { margin-bottom: 0; }
 .review-tile__date { margin: 0; }
 .review-tile__review { margin-top: 10px; }
+
+.rating-input > div {
+    display: inline-block;
+}

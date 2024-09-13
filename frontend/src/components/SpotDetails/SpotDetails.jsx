@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import CreateReviewModal, { OpenCreateReviewModal } from './CreateReviewModal';
 import SingleReview from './SingleReview';
 import { getReviewsBySpot } from '../../store/reviews';
 import { getSpotById } from '../../store/spots';
@@ -9,10 +10,12 @@ import './SpotDetails.css';
 function SpotDetails() {
     const { spotId } = useParams();
     const dispatch = useDispatch();
+    const sessionUser = useSelector((state) => state.session.user);
     const spot = useSelector((state) => state.spot);
     const reviews = useSelector((state) => state.review.Reviews);
 
     const handleReserve = () => alert("Feature coming soon!");
+    const closeModal = () => false;
 
     useEffect(() => {
         dispatch(getSpotById(spotId));
@@ -28,6 +31,9 @@ function SpotDetails() {
             {' · ' + spot.numReviews + ' '}
             <small>{spot.numReviews > 1 ? 'reviews' : 'review'}</small>
         </>);
+    }
+    const userReviewExists = () => {
+        return (sessionUser && reviews?.find((review) => review.userId == sessionUser.id));
     }
 
     return (<main id='site-spot-details'>
@@ -52,10 +58,11 @@ function SpotDetails() {
                 ★{spot.avgStarRating.toFixed(1)}
                 {reviewString()}
             </h2>
+            {userReviewExists() ?
+                <OpenCreateReviewModal modalComponent={<CreateReviewModal />} itemText='Post Your Review' onButtonClick={null} onModalClose={closeModal} /> : null }
             {reviews.length ? 
                 reviews.map((review) => <SingleReview key={review.id} review={review} />) :
-                <h2>Be the first to post a review!</h2>
-            }
+                <h2>Be the first to post a review!</h2>}
         </div>
     </main>)
 }

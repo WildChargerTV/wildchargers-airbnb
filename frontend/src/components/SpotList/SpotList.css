@@ -15,6 +15,9 @@
     display: grid;
     padding: 0 1.5%;
 }
+#spot-list > a {
+    max-width: 20%;
+}
 
 /* --------------------[Single Spot Tile Definitions]-------------------- */
 .spot-tile {
@@ -23,8 +26,8 @@
     display: grid;
     grid-template-areas:
         "a a a a"
-        "b b b c";
-    max-width: 20%;
+        "b b b c"
+        "d d d d";
     padding: 10px;
 }
 

@@ -80,6 +80,7 @@ const reviewReducer = (state = initialState, action) => {
         case LOAD:
             return {...state, ...action.list};
         case ADD:
+            return {...state, ...action};
         case ADD_IMAGE:
         case EDIT:
         case DELETE:
