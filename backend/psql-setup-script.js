@@ -5,6 +5,7 @@ sequelize.showAllSchemas({ logging: false }).then(async (data) => {
   if(data.includes(process.env.SCHEMA)) {
     await sequelize.dropSchema(process.env.SCHEMA);
   }
+}).then(async (data) => {
   if (!data.includes(process.env.SCHEMA)) {
     await sequelize.createSchema(process.env.SCHEMA);
   }
