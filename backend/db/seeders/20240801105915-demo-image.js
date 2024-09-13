@@ -25,6 +25,30 @@ module.exports = {
     },
     {
       url: 'https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg',
+      imageableType: 'Spot',
+      imageableId: 2,
+      preview: true
+    },
+    {
+      url: 'https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg',
+      imageableType: 'Spot',
+      imageableId: 3,
+      preview: true
+    },
+    {
+      url: 'https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg',
+      imageableType: 'Spot',
+      imageableId: 4,
+      preview: true
+    },
+    {
+      url: 'https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg',
+      imageableType: 'Spot',
+      imageableId: 5,
+      preview: true
+    },
+    {
+      url: 'https://i.kym-cdn.com/photos/images/original/001/042/619/4ea.jpg',
       imageableType: 'Review',
       imageableId: 1,
       preview: true
