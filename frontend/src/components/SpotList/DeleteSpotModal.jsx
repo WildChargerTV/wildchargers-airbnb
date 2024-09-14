@@ -3,7 +3,8 @@ import { useModal } from '../../context/Modal';
 export function OpenDeleteSpotModal({ modalComponent, buttonText, onButtonClick, onModalClose }) {
     const { setModalContent, setOnModalClose } = useModal();
 
-    const onClick = () => {
+    const onClick = (e) => {
+        e.preventDefault();
         if (onModalClose) setOnModalClose(onModalClose);
         setModalContent(modalComponent);
         if (typeof onButtonClick === 'function') onButtonClick();

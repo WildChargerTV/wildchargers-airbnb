@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { createSpot } from '../../store/spots';
 import './CreateSpotForm.css';
 
 function CreateSpotForm() {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [address, setAddress] = useState('');
     const [city, setCity] = useState('');
     const [spotState, setSpotState] = useState('');
@@ -46,13 +48,17 @@ function CreateSpotForm() {
     const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
-        return dispatch(createSpot({
+        let newSpotId;
+        dispatch(createSpot({
             state: spotState,
             address, city, country, lat, lng, name, description, price, images
         })).catch(async (res) => {
             const data = res.json();
             console.warn(data);
-        })
+            newSpotId = data.id;
+            navigate(`/spots/${newSpotId}`);
+        });
+
     }
 
     return (<main id='site-create-spot'>

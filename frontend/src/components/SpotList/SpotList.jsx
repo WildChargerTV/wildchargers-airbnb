@@ -20,7 +20,9 @@ function SpotList({ current }) {
     return (<main id='spot-list'>
         {current ? <h1>Manage Spots</h1> : null}
         {(current && !filteredSpots?.length) ? <NavLink to='/spots/new'><button className='site-header__button'>Create a new Spot</button></NavLink> : null}
-        {filteredSpots?.map((spot) => <NavLink key={spot.id} to={`/spots/${spot.id}`}><SingleSpot spot={spot} current={current} /></NavLink>)}
+        <div id='spot-list__grid'>
+            {filteredSpots?.map((spot) => <NavLink key={spot.id} to={`/spots/${spot.id}`}><SingleSpot spot={spot} current={current} /></NavLink>)}
+        </div>
     </main>);
 }
 

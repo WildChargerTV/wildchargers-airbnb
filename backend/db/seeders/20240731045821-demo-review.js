@@ -52,7 +52,7 @@ module.exports = {
     options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
       // userId 1 is Demo-lition, a test user 
-      userId: { [Sequelize.Op.in]: [1] }
+      userId: { [Sequelize.Op.in]: [1, 2, 3, 4] }
     }, {});
   }
 };

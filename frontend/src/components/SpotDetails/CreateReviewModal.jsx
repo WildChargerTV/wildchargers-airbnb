@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { MdOutlineStarBorder } from 'react-icons/md';
-//import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
+import { createReview } from '../../store/reviews';
 
 export function OpenCreateReviewModal({ modalComponent, buttonText, onButtonClick, onModalClose }) {
     const { setModalContent, setOnModalClose } = useModal();
@@ -29,16 +30,21 @@ function StarRatingInput({ rating, onChange }) {
     </>)
 }
 
-function CreateReviewModal() {
-    //const dispatch = useDispatch();
+function CreateReviewModal({ spotId }) {
+    const dispatch = useDispatch();
     const [review, setReview] = useState('');
-    const [rating, setRating] = useState(0);
+    const [stars, setStars] = useState(0);
     const [errors, setErrors] = useState({});
-    //const { closeModal } = useModal();
+    const { closeModal } = useModal();
 
     const handleSubmit = (e) => {
         e.preventDefault();
         setErrors({});
+        return dispatch(createReview({ review, stars }, spotId)).then(closeModal).catch(async (res) => {
+            const data = await res.json();
+            if(data?.errors) setErrors(data.errors);
+            if(data?.message) setErrors(data);
+        });
     }
 
     return (<>
@@ -46,8 +52,9 @@ function CreateReviewModal() {
         <form className='modal-form' onSubmit={handleSubmit}>
             {errors.review && <p className='modal-form__error'>{errors.review}</p>}
             {errors.rating && <p className='modal-form__error'>{errors.rating}</p>}
+            {errors.message && <p className='modal-form__error'>{errors.message}</p>}
             <textarea placeholder='Leave your review here...' value={review} onChange={(e) => setReview(e.target.value)} />
-            <StarRatingInput rating={rating} onChange={(e) => setRating(e.target.value)} />
+            <StarRatingInput rating={stars} onChange={(e) => setStars(Number(e.target.value))} />
             <button type='submit'>Submit Your Review</button>
         </form>
     </>)

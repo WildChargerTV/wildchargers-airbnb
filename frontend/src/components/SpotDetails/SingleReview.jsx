@@ -8,7 +8,7 @@ function SingleReview({ review }) {
 
     return (<div className='review-tile'>
         <h3 className='review-tile__user-name'>User firstName placeholder</h3>
-        <h4 className='review-tile__date'>{MONTHS[createdDate.getMonth() - 1]} {createdDate.getFullYear()}</h4>
+        <h4 className='review-tile__date'>{MONTHS[createdDate.getMonth()]} {createdDate.getFullYear()}</h4>
         <p className='review-tile__review'>{review.review}</p>
     </div>)
 }

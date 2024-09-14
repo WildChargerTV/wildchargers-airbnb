@@ -44,7 +44,12 @@ const router = createBrowserRouter([{
         },
         {
           path: ':spotId',
-          element: <SpotDetails />
+          element: <SpotDetails />,
+          children: [
+            {
+              path: 'edit',
+            }
+          ]
         }
       ]
     }

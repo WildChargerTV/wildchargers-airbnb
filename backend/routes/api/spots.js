@@ -85,7 +85,11 @@ router.get('/', validateSpotParams, async (req, res) => {
 // GET all Spots owned by the current User
 router.get('/current', requireAuthentication, async (req, res) => {
     const spots = await Spot.findAll({
-        attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'],
+        attributes: [
+            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
+            [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating'],
+            [Sequelize.col('url'), 'previewImage']
+        ],
         include: [
             { model: Review, group: Spot.id },
             { model: Image, as: 'SpotImages', where: { preview: { [Op.eq]: true } } }
@@ -111,7 +115,7 @@ router.get('/current', requireAuthentication, async (req, res) => {
     return res.json({ Spots: spots });
 });
 
-// GET one Spot
+//! GET one Spot
 router.get('/:spotId', (req, _res, next) => {
     req.body.type = 'Spot';
     req.body.Model = Spot;
@@ -120,12 +124,14 @@ router.get('/:spotId', (req, _res, next) => {
         attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'],
         include: [
             { model: Image, as: 'SpotImages' },
-            { model: Review, where: { spotId: req.params.spotId }}, 
+            { model: Review, where: { spotId: req.params.spotId }, required: false }, 
             { model: User, as: 'Owner' }
         ],
     }
+    console.log('param thing: ', typeof req.params.spotId);
     return next();
 }, findInstance, (req, res) => {
+    console.log(req.body);
     const json = req.body.instance.toJSON();
 
     // numReviews column replacement

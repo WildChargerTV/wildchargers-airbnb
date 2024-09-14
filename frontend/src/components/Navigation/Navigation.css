@@ -66,8 +66,9 @@
     list-style-type: none;
     margin: 0;
     padding: 0;
-    position: relative;
-    top: 5px;
+    position: absolute;
+    top: 81px;
+    width: max-content;
 }
 .site-profile__dropdown > li {
     cursor: default;
@@ -83,5 +84,5 @@
     padding-bottom: 5px;
 }
 #dropdown-logout {
-    margin-left: 50px;
+    margin: auto; /* TODO Center button!!! */
 }

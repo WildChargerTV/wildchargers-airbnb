@@ -25,7 +25,11 @@
 }
 
 #spot-detail__gallery {
+    display: grid;
     grid-area: c;
+    grid-template-areas: 
+        "a a b d"
+        "a a c e";
     margin-bottom: 20px;
 }
 
@@ -51,7 +55,10 @@
     padding: 10px 15px;
 }
 #spot-detail__price, #spot-detail__rating-reviews { margin-top: 0; }
-#spot-detail__price { grid-area: a; }
+#spot-detail__price { 
+    grid-area: a; 
+    margin-right: 10px;
+}
 #spot-detail__rating-reviews { 
     grid-area: b; 
     text-align: right;

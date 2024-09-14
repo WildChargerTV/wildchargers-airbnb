@@ -89,7 +89,7 @@ module.exports = {
     options.truncate = true;
     options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
-      address: { [Sequelize.Op.in]: ['123 Disney Lane'] }
+      address: { [Sequelize.Op.in]: ['123 Disney Lane', '246 Campfire Court', '772 Greenrose Avenue', '9220 West Lake Road', '8011 Talbot Avenue'] }
     }, {});
   }
 };

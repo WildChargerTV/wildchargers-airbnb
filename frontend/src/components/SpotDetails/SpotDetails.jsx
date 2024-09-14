@@ -20,7 +20,7 @@ function SpotDetails() {
     useEffect(() => {
         dispatch(getSpotById(spotId));
         dispatch(getReviewsBySpot(spotId));
-    }, [dispatch, spotId]);
+    }, [dispatch, spotId, reviews]);
 
     // Handler to prevent rendering error before fetch is complete
     if(!spot?.SpotImages || !reviews) return null;
@@ -32,10 +32,7 @@ function SpotDetails() {
             <small>{spot.numReviews > 1 ? 'reviews' : 'review'}</small>
         </>);
     }
-    const userReviewExists = () => {
-        console.warn((sessionUser && reviews?.find((review) => review.userId == sessionUser.id) && spot.ownerId !== sessionUser.id));
-        return (sessionUser && reviews?.find((review) => review.userId == sessionUser.id) && spot.ownerId !== sessionUser.id);
-    }
+    const userReviewExists = () => (sessionUser && !reviews?.find((review) => review.userId == sessionUser.id) && spot.ownerId !== sessionUser.id);
 
     return (<main id='site-spot-details'>
         <div id='spot-detail'>
@@ -48,7 +45,7 @@ function SpotDetails() {
             <div id='spot-detail__reserve-panel'>
                 <h3 id='spot-detail__price'>${spot.price}<small>/night</small></h3>
                 <h3 id='spot-detail__rating-reviews'>
-                    ★{spot.avgStarRating.toFixed(1)}
+                    ★{spot?.avgStarRating?.toFixed(1) || ' New'}
                     {reviewString()}
                 </h3>
                 <button id='spot-detail__reserve-btn' onClick={handleReserve}>Reserve</button>
@@ -56,11 +53,11 @@ function SpotDetails() {
         </div>
         <div id='spot-reviews'>
             <h2>
-                ★{spot.avgStarRating.toFixed(1)}
+                ★{spot?.avgStarRating?.toFixed(1) || ' New'}
                 {reviewString()}
             </h2>
             {userReviewExists() ?
-                <OpenCreateReviewModal modalComponent={<CreateReviewModal />} itemText='Post Your Review' onButtonClick={null} onModalClose={closeModal} /> : null }
+                <OpenCreateReviewModal modalComponent={<CreateReviewModal spotId={ spot.id } />} buttonText='Post Your Review' onButtonClick={null} onModalClose={closeModal} /> : null }
             {reviews.length ? 
                 reviews.map((review) => <SingleReview key={review.id} review={review} />) :
                 <h2>Be the first to post a review!</h2>}

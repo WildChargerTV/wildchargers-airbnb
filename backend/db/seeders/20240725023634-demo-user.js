@@ -48,7 +48,7 @@ module.exports = {
     options.truncate = true;
     options.restartIdentity = true;
     return queryInterface.bulkDelete(options, {
-      username: { [Sequelize.Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] }
+      username: { [Sequelize.Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2', 'LivingMeme'] }
     }, {});
   }
 };

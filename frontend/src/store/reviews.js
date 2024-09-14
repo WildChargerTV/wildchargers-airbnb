@@ -30,6 +30,7 @@ export const getCurrentReviews = () => async (dispatch) => {
 }
 
 export const createReview = (payload, spotId) => async (dispatch) => {
+    console.log(payload, spotId)
     const response = await csrfFetch(`/api/spots/${spotId}/reviews`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -79,8 +80,11 @@ const reviewReducer = (state = initialState, action) => {
     switch(action.type) {
         case LOAD:
             return {...state, ...action.list};
-        case ADD:
-            return {...state, ...action};
+        case ADD: {
+            const newState = structuredClone(state);
+            state.Reviews.unshift(action.review);
+            return newState;
+        }
         case ADD_IMAGE:
         case EDIT:
         case DELETE:
