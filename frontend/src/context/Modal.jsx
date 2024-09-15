@@ -1,3 +1,6 @@
+/** src/context/Modal.jsx - Context Component
+ ** Creates and exports the Modal context for Component use.
+*/
 import { createContext, useContext, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import './Modal.css';
@@ -18,7 +21,8 @@ export function ModalProvider({ children }) {
         }
     }
 
-    /* sonarlint(javascript:S6481): 
+    /** 
+     *! sonarlint(javascript:S6481): 
     The 'contextValue' object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook. */
     const contextValue = { modalRef, modalContent, setModalContent, setOnModalClose, closeModal }
 

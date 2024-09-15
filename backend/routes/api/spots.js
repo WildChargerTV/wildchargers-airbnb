@@ -12,14 +12,11 @@ const { Op } = require('sequelize');
 
 const router = express.Router();
 
-// GET all Spots
+//* GET all Spots
 router.get('/', validateSpotParams, async (req, res) => {
     const query = {
         attributes: [
-            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            //[Sequelize.fn('AVG', Sequelize.col('Reviews.stars')), 'avgRating'],
-            //[Sequelize.col('url'), 'previewImage']
-        ],
+            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'],
         include: [
             { model: Review }, 
             { model: Image, as: 'SpotImages', where: { preview: { [Op.eq]: true } } }
@@ -33,7 +30,6 @@ router.get('/', validateSpotParams, async (req, res) => {
     if(page >= 1 && size >= 1) {
         query.limit = size;
         query.offset = size * (page - 1);
-        //query.subQuery = false; // TODO LIMIT MAY NOT WORK. See https://github.com/sequelize/sequelize/issues/4146
     }
     query.where = {
         lat: {
@@ -82,13 +78,11 @@ router.get('/', validateSpotParams, async (req, res) => {
     });
 });
 
-// GET all Spots owned by the current User
+//* GET all Spots owned by the current User
 router.get('/current', requireAuthentication, async (req, res) => {
     const spots = await Spot.findAll({
         attributes: [
-            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt',
-            [Sequelize.fn('AVG', Sequelize.col('stars')), 'avgRating'],
-            [Sequelize.col('url'), 'previewImage']
+            'id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price', 'createdAt', 'updatedAt'
         ],
         include: [
             { model: Review, group: Spot.id },

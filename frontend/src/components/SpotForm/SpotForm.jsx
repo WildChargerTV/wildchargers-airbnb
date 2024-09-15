@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { createSpot } from '../../store/spots';
-import './CreateSpotForm.css';
+import './SpotForm.css';
 
-function CreateSpotForm() {
+function SpotForm() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [address, setAddress] = useState('');
@@ -146,4 +146,4 @@ function CreateSpotForm() {
     </main>)
 }
 
-export default CreateSpotForm;
+export default SpotForm;

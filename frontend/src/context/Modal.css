@@ -12,6 +12,7 @@
   
 #modal-background {
     border: none;
+    cursor: default;
     position: fixed;
     top: 0;
     right: 0;
@@ -31,7 +32,7 @@
     width: 15%;
 }
 
-/* --------------------[Global Modal Element Definitions]-------------------- */
+/* --------------------[Global Modal Class Definitions]-------------------- */
 .modal-title { margin: 0; }
 
 .modal-form {
@@ -47,7 +48,21 @@
     text-align: left;
 }
 
-.modal-button {
-    margin-top: 25px;
+.modal-button, .modal-button-delete, .modal-form__button {
+    margin-top: 15px;
     width: 100%;
+}
+.modal-button-delete {
+    background-color: #FF5A5F;
+    border: 1px solid black;
+}
+.modal-button-delete:hover {
+    background-color: white;
+    border: 1px solid black;
+    color: black;
+}
+.modal-button-delete:active {
+    background-color: #999999;
+    border: 1px solid white;
+    color: white;
 }

@@ -4,7 +4,6 @@
     cursor: pointer;
 }
 
-
 .spot-info {
     display: flex;
     justify-content: space-between;
@@ -15,7 +14,7 @@
     padding: 0 1.5%;
 }
 
-#spot-list__grid {
+#spot-list-grid {
     display: grid;
     grid-template-columns: repeat(4, 24.2%);
     width: 100%;
@@ -32,7 +31,8 @@
     grid-template-areas:
         "a a a a"
         "b b b c"
-        "d d d d";
+        "b b b d"
+        "e e e e";
     padding: 10px;
 }
 
@@ -47,6 +47,21 @@
     text-align: right;
     margin-bottom: auto;
 }
+.spot-tile__tooltip {
+    display: flex;
+    font-family: 'kenya-southSide', sans-serif;
+    font-size: medium;
+    grid-area: d;
+    justify-content: flex-end;
+    height: fit-content;
+    margin: 0;
+    position: relative;
+    top: -10px;
+    width: 100%;
+}
 .spot-tile__controls {
-    z-index: 10;
+    display: grid;
+    gap: 5px;
+    grid-area: e;
+    grid-template-columns: repeat(2, min-content);
 }
