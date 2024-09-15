@@ -87,7 +87,12 @@ const reviewReducer = (state = initialState, action) => {
         }
         case ADD_IMAGE:
         case EDIT:
-        case DELETE:
+            return {...state, ...action};
+        case DELETE: {
+            const newState = structuredClone(state);
+            newState.Reviews = newState.Reviews?.filter((review) => review.id !== action.reviewId);
+            return newState;
+        }
         case DELETE_IMAGE:
             return {...state, ...action};
         default:

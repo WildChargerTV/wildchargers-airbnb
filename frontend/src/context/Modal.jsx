@@ -22,8 +22,8 @@ export function ModalProvider({ children }) {
     }
 
     /** 
-     *! sonarlint(javascript:S6481): 
-    The 'contextValue' object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook. */
+     *! sonarlint(javascript:S6481): The 'contextValue' object passed as the value prop to the Context provider changes every render. To fix this consider wrapping it in a useMemo hook. 
+    */
     const contextValue = { modalRef, modalContent, setModalContent, setOnModalClose, closeModal }
 
     return (<>
