@@ -122,10 +122,8 @@ router.get('/:spotId', (req, _res, next) => {
             { model: User, as: 'Owner' }
         ],
     }
-    console.log('param thing: ', typeof req.params.spotId);
     return next();
 }, findInstance, (req, res) => {
-    console.log(req.body);
     const json = req.body.instance.toJSON();
 
     // numReviews column replacement

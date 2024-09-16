@@ -39,7 +39,6 @@ export const getCurrentSpots = () => async (dispatch) => {
 }
 
 export const createSpot = (payload) => async (dispatch) => {
-    console.log(payload);
     const response = await csrfFetch('/api/spots', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -48,7 +47,7 @@ export const createSpot = (payload) => async (dispatch) => {
     if(response.ok) {
         const newSpot = await response.json();
         dispatch(add(newSpot));
-    } // TODO create error handling
+    }
 }
 export const addImageToSpot = (payload, spotId) => async (dispatch) => {
     const response = await csrfFetch(`/api/spots/${spotId}/images`, {
@@ -59,7 +58,7 @@ export const addImageToSpot = (payload, spotId) => async (dispatch) => {
     if(response.ok) {
         const newImage = await response.json();
         dispatch(addImage(newImage, spotId))
-    } // TODO create error handling
+    }
 }
 
 export const editSpot = (payload, spotId) => async (dispatch) => {
@@ -71,7 +70,7 @@ export const editSpot = (payload, spotId) => async (dispatch) => {
     if(response.ok) {
         const spot = await response.json();
         dispatch(edit(spot)); // NOTE: return Spot carries id, spotId passthru not needed
-    } // TODO create error handling
+    }
 }
 
 export const deleteSpot = (spotId) => async (dispatch) => {
@@ -96,6 +95,7 @@ const spotReducer = (state = initialState, action) => {
         case ADD:
         case ADD_IMAGE:
         case EDIT:
+            return {...state, ...action.spot};
         case DELETE:
         case DELETE_IMAGE:
             console.log(action);

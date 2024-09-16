@@ -3,16 +3,27 @@
  ** Note: Uses Modal.css for formatting. Any unique rules would be in SpotList.css
 */
 
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useModal } from '../../context/Modal';
+import { deleteSpot } from '../../store/spots';
 
 /** Component Props:
  *  @param spotId (number) - The id of the Spot to add this Review to.
 */
 export default function DeleteSpotModal({ spotId }) {
+    const dispatch = useDispatch();
     const { closeModal } = useModal();
+    const [errors, setErrors] = useState({});
 
     const handleDelete = () => {
-        console.log(spotId);
+        setErrors({});
+        return dispatch(deleteSpot(spotId))
+        .then(closeModal)
+        .catch(async (res) => {
+            const data = await res.json();
+            if(data?.message !== 'Successfully deleted') setErrors(data);
+        })
     }
 
     return (<>
@@ -27,5 +38,8 @@ export default function DeleteSpotModal({ spotId }) {
 
         {/* Delete Cancellation Button */}
         <button className='modal-button' onClick={closeModal}>No (Keep Spot)</button>
+
+        {/* Error Handler */}
+        {errors.message && <p className='modal-form__error'>{errors.message}</p>}
     </>)
 }

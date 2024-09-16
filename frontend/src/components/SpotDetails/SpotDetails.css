@@ -35,8 +35,11 @@ TODO: Organize this file.
         "a a b d"
         "a a c e";
     margin-bottom: 20px;
+    
 }
-
+#spot-detail__gallery > img {
+    max-width: 50%;
+}
 #spot-detail__host {
     grid-area: d;
     margin: 0;
