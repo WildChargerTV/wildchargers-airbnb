@@ -1,4 +1,7 @@
-# `AirBnB API`
+# WildCharger's AirBnB
+**WildCharger's AirBnB** was my first solo project completed for App Academy. It allows users to browse & create Spots, book stays at Spots, and create Reviews for Spots, as well as attach images to their Spots.
+
+This project has no live link, as it serves no practical purpose. It has been made public for archival purposes only.
 
 ## Database Schema Design
 ![Database Schema](images/schema.png)
